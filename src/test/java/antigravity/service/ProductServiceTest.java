@@ -2,8 +2,8 @@ package antigravity.service;
 
 import org.junit.jupiter.api.Test;
 
-
-class ProductServiceTest {
+import static org.junit.jupiter.api.Assertions.*;
+public class ProductServiceTest {
 
     @Test
     void getProductAmount() {
