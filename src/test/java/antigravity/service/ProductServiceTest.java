@@ -33,7 +33,9 @@ public class ProductServiceTest {
     public void testGetProductAmount() {
         // 테스트에 사용할 가상 데이터 생성
         int productId = 1;
-        ProductInfoRequest request = new ProductInfoRequest(1);
+        int[] couponIds = {1, 2};
+
+        ProductInfoRequest request = new ProductInfoRequest(1,couponIds);
         Product sampleProduct = new Product(productId, "피팅노드상품", 215000);
 
         // getProduct 메서드가 호출될 때 반환할 가상 데이터 설정

@@ -9,8 +9,4 @@ import lombok.*;
 public class ProductInfoRequest {
     private int productId;
     private int[] couponIds;
-
-    public ProductInfoRequest(int productId) {
-        this.productId = productId;
-    }
 }
