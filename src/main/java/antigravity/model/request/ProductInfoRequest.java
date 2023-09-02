@@ -1,9 +1,10 @@
 package antigravity.model.request;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class ProductInfoRequest {
     private int productId;

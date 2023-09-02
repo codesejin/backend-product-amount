@@ -1,25 +1,29 @@
-database: hsqldb
+server:
+  servlet:
+    encoding:
+      charset: utf-8
+      force: true
+  port: 8089
 
-# Database Settings
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb;MODE=mysql;
-    username: sa
+    url: jdbc:mysql://localhost:3306/testdb?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
     password:
-    driverClassName: org.h2.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      '[hibernate.default_batch_fetch_size]': 100
+      '[hibernate.format_sql]': true
+    show-sql: true
+  output:
+    ansi:
+      enabled: always
 
-  # H2 Settings
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-
-  logging:
-    level:
-      org:
-        springframework.web: debug
-  sql:
-    init:
-      schema-locations: classpath*:/${database}/schema.sql
-      data-locations: classpath*:/${database}/data.sql
-      platform: h2
+logging:
+  level:
+    '[com.example.server]': DEBUG
+    '[org.hibernate.type]': TRACE
