@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import static antigravity.service.PriceCalculatorService.calculateFinalPrice;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,11 +26,5 @@ public class ProductAmountResponse {
                     .discountPrice((int)discountPrice)
                     .finalPrice(calculateFinalPrice(product.getPrice(), discountPrice))
                     .build();
-    }
-
-    public static int calculateFinalPrice(int originPrice, double discountPrice) {
-        int priceBeforeTrimming = (int) (originPrice - discountPrice);
-        // 천단위 절삭
-        return (priceBeforeTrimming / 10000) * 10000;
     }
 }

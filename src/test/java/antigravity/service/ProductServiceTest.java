@@ -9,6 +9,7 @@ import antigravity.model.request.ProductInfoRequest;
 import antigravity.model.response.ProductAmountResponse;
 import antigravity.repository.ProductRepository;
 import antigravity.repository.PromotionProductsRepository;
+import antigravity.repository.PromotionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,32 +17,58 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.persistence.EntityNotFoundException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class ProductServiceTest {
 
     private ProductService productService;
-
     @Mock
     private ProductRepository productRepository;
-
+    @Mock
+    private PromotionRepository promotionRepository;
     @Mock
     private PromotionProductsRepository promotionProductsRepository;
+    @Mock
+    private PriceCalculatorService priceCalculatorService;
+    @Mock
+    private ProductPriceValidationService productPriceValidationService;
+
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        productService = new ProductService(productRepository, promotionProductsRepository);
+        productService = new ProductService(productRepository, promotionRepository, promotionProductsRepository,
+                priceCalculatorService, productPriceValidationService);
+    }
+
+    private Product createProduct(int id, String name, int price) {
+        return Product.builder()
+                .id(id)
+                .name(name)
+                .price(price)
+                .build();
+    }
+
+    private Promotion createPromotion(int id, PromotionType promotionType, String name, int discountValue, DiscountType discountType, String useEndedAt) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        return Promotion.builder()
+                .id(id)
+                .promotion_type(promotionType)
+                .name(name)
+                .discount_value(discountValue)
+                .discount_type(discountType)
+                .use_ended_at(format.parse(useEndedAt))
+                .build();
     }
 
     @Test
@@ -50,64 +77,76 @@ public class ProductServiceTest {
         // given
         int productId = 1;
         int[] couponIds = {1, 2};
+        ProductInfoRequest request = new ProductInfoRequest(productId, couponIds);
 
-        ProductInfoRequest request = new ProductInfoRequest(productId,couponIds);
+        Product product = createProduct(1, "피팅노드상품", 215000);
+        Promotion promotion1 = createPromotion(1, PromotionType.COUPON, "30000원 할인쿠폰", 30000, DiscountType.WON, "2022-11-01");
+        Promotion promotion2 = createPromotion(2, PromotionType.CODE, "15% 할인코드", 15, DiscountType.PERCENT, "2022-11-01");
 
-        Product product = Product.builder()
-                .id(1)
-                .name("피팅노드상품")
-                .price(215000)
-                .build();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
-        Promotion promotion1 = Promotion.builder()
-                .id(1)
-                .promotion_type(PromotionType.COUPON)
-                .name("30000원 할인쿠폰")
-                .discount_value(30000)
-                .discount_type(DiscountType.WON)
-                .use_ended_at(format.parse("2022-11-01"))
-                .use_ended_at(format.parse("2023-03-01"))
-                .build();
-
-        Promotion promotion2 = Promotion.builder()
-                .id(2)
-                .promotion_type(PromotionType.CODE)
-                .name("15% 할인코드")
-                .discount_type(DiscountType.PERCENT)
-                .discount_value(15)
-                .use_ended_at(format.parse("2022-11-01"))
-                .use_ended_at(format.parse("2023-03-01"))
-                .build();
-
-        PromotionProducts promotionProducts1 = PromotionProducts.builder()
-                .id(1)
-                .product(product)
-                .promotion(promotion1)
-                .build();
-
-        PromotionProducts promotionProducts2 = PromotionProducts.builder()
-                .id(2)
-                .product(product)
-                .promotion(promotion2)
-                .build();
-
-        List<PromotionProducts> promotionProductsList = new ArrayList<>();
-        promotionProductsList.add(promotionProducts1);
-        promotionProductsList.add(promotionProducts2);
         // when
-        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
-
         when(promotionProductsRepository.findProductsWithPromotionIn(productId, Arrays.stream(request.getCouponIds()).boxed().collect(Collectors.toList())))
-                .thenReturn(promotionProductsList);
+                .thenReturn(Arrays.asList(
+                        PromotionProducts.builder().id(1).product(product).promotion(promotion1).build(),
+                        PromotionProducts.builder().id(2).product(product).promotion(promotion2).build()
+                ));
 
         ProductAmountResponse response = productService.getProductAmount(request);
 
         // then
-        assertEquals(response.getName(), "피팅노드상품");
-        assertEquals(response.getOriginPrice(), 215000);
-        assertEquals(response.getDiscountPrice(), 62250);
-        assertEquals(response.getFinalPrice(), 150000);
+        assertThat(response.getName()).isEqualTo("피팅노드상품");
+        assertThat(response.getOriginPrice()).isEqualTo(215000);
+        assertThat(response.getDiscountPrice()).isEqualTo(62250);
+        assertThat(response.getFinalPrice()).isEqualTo(150000);
+    }
 
+    @Test
+    @DisplayName("Not Found Product Entity Exception 테스트")
+    public void testEntityNotFoundException() {
+        // given
+        int productId = 1;
+        int[] couponIds = {1, 2};
+        ProductInfoRequest request = new ProductInfoRequest(productId, couponIds);
+
+        // when
+        when(productRepository.findById(2)).thenReturn(Optional.empty());
+
+        // then
+        assertThatThrownBy(() -> productService.getProductAmount(request))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("해당하는 Product ID를 찾을 수 없습니다. : " + productId);
+    }
+
+    @Test
+    @DisplayName("상품의 가격이  ₩ 10,000 미만일때 익셉션 테스트")
+    public void testProductPriceMinimum() throws ParseException {
+        // given
+        int productId = 1;
+        int[] couponIds = {1, 2};
+        ProductInfoRequest request = new ProductInfoRequest(productId, couponIds);
+
+        Product product = createProduct(1, "1000원 상품", 1000);
+        //when
+        when(productRepository.findById(product.getId())).thenReturn(java.util.Optional.of(product));
+        // then
+        assertThatThrownBy(() -> productService.getProductAmount(request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("상품의 가격이 유효한 범위를 벗어납니다.");
+    }
+
+    @Test
+    @DisplayName("상품의 가격이  ₩ 10,000,000 초과일때 익셉션 테스트")
+    public void testProductPriceMaximum() throws ParseException {
+        // given
+        int productId = 1;
+        int[] couponIds = {1, 2};
+        ProductInfoRequest request = new ProductInfoRequest(productId, couponIds);
+
+        Product product = createProduct(1, "완전 비싼 상품", 20000000);
+        //when
+        when(productRepository.findById(product.getId())).thenReturn(java.util.Optional.of(product));
+        // then
+        assertThatThrownBy(() -> productService.getProductAmount(request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("상품의 가격이 유효한 범위를 벗어납니다.");
     }
 }
