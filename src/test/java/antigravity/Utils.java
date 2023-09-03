@@ -18,8 +18,9 @@ public class Utils {
                 .build();
     }
 
-    public static Promotion createPromotion(int id, PromotionType promotionType, String name, int discountValue, DiscountType discountType, String useEndedAt) throws ParseException, ParseException {
+    public static Promotion createPromotion(int id, PromotionType promotionType, String name, int discountValue, DiscountType discountType, String useStartedAt, String useEndedAt) throws ParseException, ParseException {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date usestartedDate = format.parse(useStartedAt);
         Date useEndedDate = format.parse(useEndedAt);
         return Promotion.builder()
                 .id(id)
@@ -27,6 +28,7 @@ public class Utils {
                 .name(name)
                 .discount_value(discountValue)
                 .discount_type(discountType)
+                .use_started_at(usestartedDate)
                 .use_ended_at(useEndedDate)
                 .build();
     }

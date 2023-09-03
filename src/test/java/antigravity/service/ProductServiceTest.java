@@ -19,7 +19,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,8 +55,8 @@ public class ProductServiceTest {
         Product product = Utils.createProduct(1, "피팅노드상품", 215000);
 
         given(productRepository.getById(1)).willReturn(product);
-        Promotion promotion1 = Utils.createPromotion(1, PromotionType.COUPON, "30000원 할인쿠폰", 30000, DiscountType.WON, "2022-11-01");
-        Promotion promotion2 = Utils.createPromotion(2, PromotionType.CODE, "15% 할인코드", 15, DiscountType.PERCENT, "2022-11-01");
+        Promotion promotion1 = Utils.createPromotion(1, PromotionType.COUPON, "30000원 할인쿠폰", 30000, DiscountType.WON, "2022-11-01", "2023-10-01");
+        Promotion promotion2 = Utils.createPromotion(2, PromotionType.CODE, "15% 할인코드", 15, DiscountType.PERCENT, "2022-11-01","2023-10-01");
 
         // PromotionProducts 리스트를 변수에 저장
         List<PromotionProducts> promotionProductsList = Arrays.asList(
@@ -62,7 +64,7 @@ public class ProductServiceTest {
                 PromotionProducts.builder().id(2).product(product).promotion(promotion2).build()
         );
 
-        given(promotionProductsRepository.findProductsWithPromotionIn(productId, Arrays.stream(request.getCouponIds()).boxed().collect(Collectors.toList())))
+        given(promotionProductsRepository.findProductsWithPromotionIn(productId, request.intArrayToList(couponIds), new Date()))
                 .willReturn(promotionProductsList);
 
         given(priceCalculatorService.calculateDiscountPrice(product, promotionProductsList))

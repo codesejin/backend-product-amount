@@ -14,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +29,7 @@ class PriceCalculatorServiceTest {
         // given
         PriceCalculatorService priceCalculatorService = new PriceCalculatorService();
         Product product = Utils.createProduct(1, "피팅노드상품", 215000);
-        Promotion promotion1 = Utils.createPromotion(1, PromotionType.COUPON, "30000원 할인쿠폰", 30000, DiscountType.WON, "2022-11-01");
+        Promotion promotion1 = Utils.createPromotion(1, PromotionType.COUPON, "30000원 할인쿠폰", 30000, DiscountType.WON, "2022-11-01","2023-10-01");
 
         List<PromotionProducts> promotionProductsList = Collections.singletonList(
                 PromotionProducts.builder().id(1).product(product).promotion(promotion1).build()
@@ -49,7 +48,7 @@ class PriceCalculatorServiceTest {
         // given
         PriceCalculatorService priceCalculatorService = new PriceCalculatorService();
         Product product = Utils.createProduct(1, "피팅노드상품", 215000);
-        Promotion promotion1 = Utils.createPromotion(1, PromotionType.CODE, "15% 할인코드", 15, DiscountType.PERCENT, "2022-11-01");
+        Promotion promotion1 = Utils.createPromotion(1, PromotionType.CODE, "15% 할인코드", 15, DiscountType.PERCENT, "2022-11-01","2023-10-01");
 
         List<PromotionProducts> promotionProductsList = Collections.singletonList(
                 PromotionProducts.builder().id(1).product(product).promotion(promotion1).build()
@@ -68,8 +67,8 @@ class PriceCalculatorServiceTest {
         // given
         Product product = Utils.createProduct(1, "피팅노드상품", 215000);
 
-        Promotion promotion1 = Utils.createPromotion(1, PromotionType.COUPON, "30000원 할인쿠폰", 30000, DiscountType.WON, "2022-11-01");
-        Promotion promotion2 = Utils.createPromotion(2, PromotionType.CODE, "15% 할인코드", 15, DiscountType.PERCENT, "2022-11-01");
+        Promotion promotion1 = Utils.createPromotion(1, PromotionType.COUPON, "30000원 할인쿠폰", 30000, DiscountType.WON, "2022-11-01","2023-10-01");
+        Promotion promotion2 = Utils.createPromotion(2, PromotionType.CODE, "15% 할인코드", 15, DiscountType.PERCENT, "2022-11-01","2023-10-01");
 
         List<PromotionProducts> promotionProductsList = Arrays.asList(
                 PromotionProducts.builder().id(1).product(product).promotion(promotion1).build(),
