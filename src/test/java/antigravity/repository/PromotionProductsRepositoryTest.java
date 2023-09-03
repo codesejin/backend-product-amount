@@ -28,7 +28,7 @@ class PromotionProductsRepositoryTest {
         // when
         List<PromotionProducts> productsWithPromotionIn = promotionProductsRepository.findProductsWithPromotionIn(productId, list);
         // then
-        Assertions.assertThat(productsWithPromotionIn).isNotEmpty(); // 빈 배열이 아닌 결우
+        Assertions.assertThat(productsWithPromotionIn).isNotEmpty(); // 빈 배열이 아닌 경우
         // 예상한 데이터가 포함되어 있는지 확인
         Assertions.assertThat(productsWithPromotionIn).anySatisfy(promotionProducts -> {
             Assertions.assertThat(promotionProducts.getProduct().getId()).isEqualTo(productId);
@@ -48,6 +48,6 @@ class PromotionProductsRepositoryTest {
         // when
         List<PromotionProducts> productsWithPromotionIn = promotionProductsRepository.findProductsWithPromotionIn(productId, list);
         // then
-        Assertions.assertThat(productsWithPromotionIn).isEmpty(); // 빈 배열이 아닌 결우
+        Assertions.assertThat(productsWithPromotionIn).isEmpty(); // 빈 배열인 경우
     }
 }

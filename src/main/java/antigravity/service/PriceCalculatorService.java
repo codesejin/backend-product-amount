@@ -26,6 +26,6 @@ public class PriceCalculatorService {
     public static int calculateFinalPrice(int originPrice, double discountPrice) {
         int priceBeforeTrimming = (int) (originPrice - discountPrice);
         // 천단위 절삭
-        return (priceBeforeTrimming / 10000) * 10000;
+        return (priceBeforeTrimming / 1000) * 1000;
     }
 }

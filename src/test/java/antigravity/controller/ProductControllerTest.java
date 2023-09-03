@@ -39,7 +39,7 @@ public class ProductControllerTest {
         response.setName("피팅노드상품");
         response.setOriginPrice(215000);
         response.setDiscountPrice(62250);
-        response.setFinalPrice(150000);
+        response.setFinalPrice(152000);
 
         int productId = 1;
         int[] couponIds = {1, 2};

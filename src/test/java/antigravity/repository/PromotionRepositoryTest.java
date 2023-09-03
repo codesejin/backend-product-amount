@@ -1,7 +1,6 @@
 package antigravity.repository;
 
 import antigravity.util.constant.ErrorMessages;
-import antigravity.util.exception.ProductBadRequestException;
 import antigravity.util.exception.PromotionBadRequestException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +15,7 @@ import java.util.List;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class PromotionRepositoryTest {
+
     @Autowired
     private PromotionRepository promotionRepository;
 
@@ -37,7 +37,7 @@ class PromotionRepositoryTest {
         // given
         int[] couponIds = {3, 4};
         List<Integer> list = Arrays.stream(couponIds).boxed().toList();
-        // when
+        // when & then
         Assertions.assertThatThrownBy(() -> promotionRepository.existsByIds(list))
                 .isInstanceOf(PromotionBadRequestException.class)
                 .hasMessage(ErrorMessages.NOT_FOUND_PROMOTION);
