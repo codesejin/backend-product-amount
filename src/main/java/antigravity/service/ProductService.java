@@ -9,6 +9,7 @@ import antigravity.repository.PromotionProductsRepository;
 import antigravity.repository.PromotionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class ProductService {
     private final PriceCalculatorService priceCalculatorService;
     private final ProductPriceValidationService productPriceValidationService;
 
-
+    @Transactional(readOnly = true)
     public ProductAmountResponse getProductAmount(ProductInfoRequest request) {
 
         Product product = productRepository.getById(request.getProductId());
@@ -33,7 +34,6 @@ public class ProductService {
         List<PromotionProducts> productsAndPromotionIn = promotionProductsRepository.findProductsWithPromotionIn(
                 request.getProductId(), couponIdsList);
 
-        // 1개 상품에 2개 프로모션 적용
         double discountPrice = priceCalculatorService.calculateDiscountPrice(product, productsAndPromotionIn);
 
         return ProductAmountResponse.entityToResponse(product, discountPrice);
