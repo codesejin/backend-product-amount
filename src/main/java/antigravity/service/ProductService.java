@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -32,7 +34,7 @@ public class ProductService {
         promotionRepository.existsByIds(couponIdsList);
 
         List<PromotionProducts> productsAndPromotionIn = promotionProductsRepository.findProductsWithPromotionIn(
-                request.getProductId(), couponIdsList);
+                request.getProductId(), couponIdsList, new Date());
 
         double discountPrice = priceCalculatorService.calculateDiscountPrice(product, productsAndPromotionIn);
 

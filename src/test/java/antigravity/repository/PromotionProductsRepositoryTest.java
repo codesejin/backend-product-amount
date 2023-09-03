@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @DataJpaTest
@@ -26,7 +28,7 @@ class PromotionProductsRepositoryTest {
         int[] couponIds = {1,2};
         List<Integer> list = Arrays.stream(couponIds).boxed().toList();
         // when
-        List<PromotionProducts> productsWithPromotionIn = promotionProductsRepository.findProductsWithPromotionIn(productId, list);
+        List<PromotionProducts> productsWithPromotionIn = promotionProductsRepository.findProductsWithPromotionIn(productId, list, new Date());
         // then
         Assertions.assertThat(productsWithPromotionIn).isNotEmpty(); // 빈 배열이 아닌 경우
         // 예상한 데이터가 포함되어 있는지 확인
@@ -46,7 +48,7 @@ class PromotionProductsRepositoryTest {
         int[] couponIds = {3,4};
         List<Integer> list = Arrays.stream(couponIds).boxed().toList();
         // when
-        List<PromotionProducts> productsWithPromotionIn = promotionProductsRepository.findProductsWithPromotionIn(productId, list);
+        List<PromotionProducts> productsWithPromotionIn = promotionProductsRepository.findProductsWithPromotionIn(productId, list, new Date());
         // then
         Assertions.assertThat(productsWithPromotionIn).isEmpty(); // 빈 배열인 경우
     }
